@@ -2,7 +2,7 @@
 
 Primeira etapa da pipeline de visão computacional do SpikeAI: transformar um vídeo de ataque em um novo vídeo contendo **somente o skeleton** sobre fundo vazio.
 
-Não há nesta etapa análise biomecânica, detecção da bola, classificação do ataque nem feedback técnico.
+Não há detecção da bola, classificação do ataque nem feedback técnico. O ângulo do cotovelo no vídeo/JSON é só uma demonstração de geometria (landmarks → vetores → graus), não o pipeline biomecânico do Spike.AI.
 
 ## Pipeline
 
@@ -12,7 +12,7 @@ Vídeo → OpenCV → Frames → MediaPipe Pose Landmarker → Landmarks → Ren
 
 ## Tecnologias
 
-- Python 3.12 (recomendado; MediaPipe 1.0 não suporta Python 3.14)
+- Python **3.12** (obrigatório neste setup: MediaPipe 1.0 não instala em Python 3.14)
 - OpenCV
 - MediaPipe Pose Landmarker (Tasks API)
 - Git
@@ -20,14 +20,16 @@ Vídeo → OpenCV → Frames → MediaPipe Pose Landmarker → Landmarks → Ren
 ## Requisitos
 
 - Windows, Linux ou macOS
-- Python **3.12**
-- Webcam não é necessária; a entrada é um arquivo `.mp4`
+- Python 3.12
+- Internet na **primeira execução** (download do arquivo `pose_landmarker_lite.task`)
+- Um `.mp4` local (webcam não é usada neste projeto)
+- Para assistir o MP4 gerado no Windows, use VLC se o player nativo não abrir (`mp4v`)
 
 ## Instalação
 
 ```bash
-git clone <repository>
-cd cortechx_spikeai
+git clone git@github.com:cortechx-team/SpikeAI.git
+cd SpikeAI
 
 python -m venv .venv
 
@@ -40,7 +42,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Se o PowerShell bloquear `Activate.ps1`, execute com o interpretador do venv:
+Se o PowerShell bloquear `Activate.ps1`:
 
 ```powershell
 .\.venv\Scripts\python.exe src\main.py
@@ -48,39 +50,42 @@ Se o PowerShell bloquear `Activate.ps1`, execute com o interpretador do venv:
 
 ## Execução
 
-1. Coloque o vídeo do atleta em `input/ataque_volei.mp4`.
+1. Coloque o vídeo em `input/ataque_volei.mp4` (os `.mp4` não vão para o Git).
 2. Rode:
 
 ```bash
 python src/main.py
 ```
 
-Na primeira execução o modelo `models/pose_landmarker_lite.task` é baixado automaticamente (Google Cloud Storage).
+Na primeira execução o modelo é baixado para `models/pose_landmarker_lite.task`.
 
 ## Entrada e saída
 
 | | Caminho |
 |---|---|
 | Entrada | `input/ataque_volei.mp4` |
-| Saída (vídeo) | `output/ataque_volei_pose.mp4` |
-| Saída (dados) | `output/landmarks.json` |
+| Somente skeleton (obrigatório) | `output/ataque_volei_pose.mp4` |
+| Original + skeleton (validação) | `output/original_pose.mp4` |
+| Dados | `output/landmarks.json` |
 
-O vídeo de saída usa o FPS e a resolução do original. Frames sem pose viram fundo preto (o frame original **não** é usado como fallback).
+O vídeo obrigatório usa fundo preto: atleta, quadra, bola e rede **não** aparecem. Frames sem pose ficam pretos nesse arquivo.
 
-Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda todos os landmarks do frame (mesmo com baixa visibility) e o ângulo do cotovelo esquerdo/direito.
+`original_pose.mp4` mantém o vídeo original com o skeleton por cima, só para conferir a detecção.
 
-Ao final da execução o terminal mostra estatísticas: frames com/sem pose, taxa de detecção e tempo total.
+Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda todos os pontos do frame e o ângulo do cotovelo. O valor também é escrito perto do cotovelo no vídeo.
+
+Ao final, o terminal mostra frames com/sem pose, taxa de detecção e tempo total.
 
 ## Estrutura
 
 ```text
 input/          coloque o .mp4 aqui (a pasta sobe no Git via .gitkeep; o vídeo não)
-output/         criado na execução (vídeo e JSON; ignorado pelo Git)
+output/         criado na execução (vídeos e JSON; ignorado pelo Git)
 models/         criado na execução (modelo .task baixado; ignorado)
 src/main.py     orquestra o loop
 src/video.py    leitura e escrita de vídeo
 src/pose.py     MediaPipe + landmarks estruturados
-src/renderer.py frame vazio + pontos + conexões
+src/renderer.py frame vazio + pontos + conexões + ângulo
 src/geometry.py visibility e ângulo do cotovelo
 src/export.py   exportação JSON
 requirements.txt
@@ -90,8 +95,8 @@ requirements.txt
 
 - Pose **2D** com profundidade relativa (`z`); não é reconstrução biomecânica 3D.
 - Oclusão, baixa iluminação e movimentos muito rápidos reduzem a qualidade dos landmarks.
-- Atleta parcialmente fora do quadro gera skeleton incompleto; fora por completo gera frame vazio.
-- Com várias pessoas, o MVP usa **apenas a primeira pose** detectada.
+- Atleta parcialmente fora do quadro gera skeleton incompleto; fora por completo gera frame vazio no vídeo obrigatório.
+- Com várias pessoas, usa **apenas a primeira pose** detectada.
 - Coordenadas do MediaPipe são normalizadas `[0, 1]`; o renderer converte para pixels (`x * largura`, `y * altura`).
-- No Windows o codec de escrita é `mp4v`.
+- Codec de escrita: `mp4v` (VLC costuma abrir; Filmes e TV do Windows às vezes não).
 - O modelo Lite prioriza velocidade em relação ao modelo Full.

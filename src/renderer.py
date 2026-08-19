@@ -4,8 +4,8 @@ import numpy as np
 import cv2
 from mediapipe.tasks.python.vision.pose_landmarker import PoseLandmarksConnections
 
-from geometry import is_visible
-from pose import LandmarkPoint
+from geometry import elbow_angle, is_visible
+from pose import LandmarkPoint, find_landmark
 
 DEFAULT_VISIBILITY_THRESHOLD = 0.5
 
@@ -32,8 +32,10 @@ class PoseRenderer:
         landmarks: list[LandmarkPoint] | None,
         width: int,
         height: int,
+        base_frame: np.ndarray | None = None,
     ) -> np.ndarray:
-        canvas = self.empty_frame(width, height)
+        """Fundo preto (base_frame=None) ou cópia do frame original (overlay)."""
+        canvas = base_frame.copy() if base_frame is not None else self.empty_frame(width, height)
         if not landmarks:
             return canvas
 
@@ -41,7 +43,42 @@ class PoseRenderer:
         visible = [is_visible(landmark, self.visibility_threshold) for landmark in landmarks]
         self._draw_connections(canvas, pixels, visible)
         self._draw_points(canvas, pixels, visible)
+        self._draw_elbow_angles(canvas, landmarks, width, height)
         return canvas
+
+    def _draw_elbow_angles(
+        self,
+        canvas: np.ndarray,
+        landmarks: list[LandmarkPoint],
+        width: int,
+        height: int,
+    ) -> None:
+        specs = (
+            ("L", "LEFT_SHOULDER", "LEFT_ELBOW", "LEFT_WRIST"),
+            ("R", "RIGHT_SHOULDER", "RIGHT_ELBOW", "RIGHT_WRIST"),
+        )
+        for label, shoulder_name, elbow_name, wrist_name in specs:
+            elbow = find_landmark(landmarks, elbow_name)
+            angle = elbow_angle(
+                find_landmark(landmarks, shoulder_name),
+                elbow,
+                find_landmark(landmarks, wrist_name),
+            )
+            if elbow is None or angle is None:
+                continue
+            if not is_visible(elbow, self.visibility_threshold):
+                continue
+            x, y = _to_pixel(elbow, width, height)
+            cv2.putText(
+                canvas,
+                f"{label} {angle:.0f}",
+                (x + 8, y - 8),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.45,
+                (255, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
 
     def _draw_connections(
         self,

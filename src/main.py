@@ -17,6 +17,7 @@ from video import VideoReader, VideoWriter
 
 DEFAULT_INPUT = PROJECT_ROOT / "input" / "ataque_volei.mp4"
 DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "ataque_volei_pose.mp4"
+DEFAULT_OVERLAY = PROJECT_ROOT / "output" / "original_pose.mp4"
 DEFAULT_JSON = PROJECT_ROOT / "output" / "landmarks.json"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
 
@@ -99,7 +100,8 @@ def _print_stats(info, processed: int, with_pose: int, elapsed_s: float) -> None
 def main() -> None:
     reader = VideoReader(DEFAULT_INPUT)
     info = reader.open()
-    writer = VideoWriter(DEFAULT_OUTPUT, info)
+    only_writer = VideoWriter(DEFAULT_OUTPUT, info)
+    overlay_writer = VideoWriter(DEFAULT_OVERLAY, info)
     detector = PoseDetector(DEFAULT_MODEL)
     renderer = PoseRenderer()
 
@@ -120,19 +122,24 @@ def main() -> None:
                     _print_sample(processed, landmarks)
                     sample_printed = True
             records.append(frame_record(processed, landmarks))
-            # Sempre um frame novo (preto + skeleton). Nunca reutiliza a imagem original.
-            canvas = renderer.render(landmarks, info.width, info.height)
-            writer.write(canvas)
+            only_pose = renderer.render(landmarks, info.width, info.height)
+            original_pose = renderer.render(
+                landmarks, info.width, info.height, base_frame=frame
+            )
+            only_writer.write(only_pose)
+            overlay_writer.write(original_pose)
             processed += 1
     finally:
         reader.close()
-        writer.close()
+        only_writer.close()
+        overlay_writer.close()
         detector.close()
 
     write_landmarks_json(DEFAULT_JSON, records)
     elapsed = time.perf_counter() - started
     _print_stats(info, processed, with_pose, elapsed)
-    print(f"Saída: {DEFAULT_OUTPUT}")
+    print(f"Somente pose: {DEFAULT_OUTPUT}")
+    print(f"Original + pose: {DEFAULT_OVERLAY}")
     print(f"JSON: {DEFAULT_JSON}")
 
 

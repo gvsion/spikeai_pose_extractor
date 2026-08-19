@@ -42,16 +42,20 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
 
 def _print_sample(frame_index: int, landmarks) -> None:
     print(f"Frame {frame_index}")
+    print()
     for name in SAMPLE_LANDMARKS:
         landmark = find_landmark(landmarks, name)
+        print(name)
         if landmark is None:
-            print(f"{name}: ausente")
+            print("ausente")
+            print()
             continue
         visibility = landmark.visibility if landmark.visibility is not None else "n/a"
-        print(
-            f"{name}: x={landmark.x:.4f}, y={landmark.y:.4f}, "
-            f"z={landmark.z:.4f}, visibility={visibility}"
-        )
+        print(f"x: {landmark.x:.4f}")
+        print(f"y: {landmark.y:.4f}")
+        print(f"z: {landmark.z:.4f}")
+        print(f"visibility: {visibility}")
+        print()
 
 
 def main() -> None:

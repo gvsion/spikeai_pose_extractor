@@ -10,10 +10,26 @@ from pose import PoseDetector, find_landmark
 from renderer import PoseRenderer
 from video import VideoReader, VideoWriter
 
-DEFAULT_INPUT = PROJECT_ROOT / "input" / "ataque.mp4"
-DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "ataque_pose.mp4"
+DEFAULT_INPUT = PROJECT_ROOT / "input" / "ataque_volei.mp4"
+DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "ataque_volei_pose.mp4"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
-SAMPLE_LANDMARKS = ("LEFT_SHOULDER", "LEFT_ELBOW", "LEFT_WRIST")
+SAMPLE_LANDMARKS = (
+    "NOSE",
+    "LEFT_SHOULDER",
+    "RIGHT_SHOULDER",
+    "LEFT_ELBOW",
+    "RIGHT_ELBOW",
+    "LEFT_WRIST",
+    "RIGHT_WRIST",
+    "LEFT_HIP",
+    "RIGHT_HIP",
+    "LEFT_KNEE",
+    "RIGHT_KNEE",
+    "LEFT_ANKLE",
+    "RIGHT_ANKLE",
+    "LEFT_FOOT_INDEX",
+    "RIGHT_FOOT_INDEX",
+)
 
 
 def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:

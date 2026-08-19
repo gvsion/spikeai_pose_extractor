@@ -48,7 +48,7 @@ Se o PowerShell bloquear `Activate.ps1`, execute com o interpretador do venv:
 
 ## Execução
 
-1. Coloque o vídeo do atleta em `input/ataque.mp4`.
+1. Coloque o vídeo do atleta em `input/ataque_volei.mp4`.
 2. Rode:
 
 ```bash
@@ -61,7 +61,7 @@ Na primeira execução o modelo `models/pose_landmarker_lite.task` é baixado au
 
 | | Caminho |
 |---|---|
-| Entrada | `input/ataque.mp4` |
+| Entrada | `input/ataque_volei_pose.mp4` |
 | Saída | `output/ataque_pose.mp4` |
 
 O vídeo de saída usa o FPS e a resolução do original. Frames sem pose viram fundo preto (o frame original **não** é usado como fallback).

@@ -28,8 +28,8 @@ Vídeo → OpenCV → Frames → MediaPipe Pose Landmarker → Landmarks → Ren
 ## Instalação
 
 ```bash
-git clone git@github.com:cortechx-team/SpikeAI.git
-cd SpikeAI
+git clone git@github.com:gvsion/spikeai_pose_extractor.git
+cd spikeai_pose_extractor
 
 python -m venv .venv
 

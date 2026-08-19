@@ -53,3 +53,29 @@ class VideoReader:
         if self._capture is not None:
             self._capture.release()
             self._capture = None
+
+
+class VideoWriter:
+    """Grava frames no MP4 de saída com o FPS e a resolução do vídeo de entrada."""
+
+    def __init__(self, path: Path, info: VideoInfo) -> None:
+        self.path = Path(path)
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        fps = info.fps if info.fps > 0 else 30.0
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        self._writer = cv2.VideoWriter(
+            str(self.path),
+            fourcc,
+            fps,
+            (info.width, info.height),
+        )
+        if not self._writer.isOpened():
+            raise RuntimeError(f"Não foi possível criar o vídeo de saída: {self.path}")
+
+    def write(self, frame) -> None:
+        self._writer.write(frame)
+
+    def close(self) -> None:
+        if self._writer is not None:
+            self._writer.release()
+            self._writer = None

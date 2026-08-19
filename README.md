@@ -61,21 +61,28 @@ Na primeira execução o modelo `models/pose_landmarker_lite.task` é baixado au
 
 | | Caminho |
 |---|---|
-| Entrada | `input/ataque_volei_pose.mp4` |
-| Saída | `output/ataque_pose.mp4` |
+| Entrada | `input/ataque_volei.mp4` |
+| Saída (vídeo) | `output/ataque_volei_pose.mp4` |
+| Saída (dados) | `output/landmarks.json` |
 
 O vídeo de saída usa o FPS e a resolução do original. Frames sem pose viram fundo preto (o frame original **não** é usado como fallback).
+
+Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda todos os landmarks do frame (mesmo com baixa visibility) e o ângulo do cotovelo esquerdo/direito.
+
+Ao final da execução o terminal mostra estatísticas: frames com/sem pose, taxa de detecção e tempo total.
 
 ## Estrutura
 
 ```text
 input/          vídeo de entrada (local; não versionado)
-output/         vídeo gerado (não versionado)
+output/         vídeo e JSON gerados (não versionados)
 models/         modelo .task do Pose Landmarker (baixado localmente)
 src/main.py     orquestra o loop
 src/video.py    leitura e escrita de vídeo
 src/pose.py     MediaPipe + landmarks estruturados
 src/renderer.py frame vazio + pontos + conexões
+src/geometry.py visibility e ângulo do cotovelo
+src/export.py   exportação JSON
 requirements.txt
 ```
 

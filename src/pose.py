@@ -1,3 +1,5 @@
+"""Detecção de pose: MediaPipe Pose Landmarker → lista de landmarks nomeados."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.request import urlretrieve
@@ -26,6 +28,8 @@ LANDMARK_NAMES = {item.value: item.name for item in PoseLandmark}
 
 @dataclass(frozen=True)
 class LandmarkPoint:
+    """Um ponto corporal. x/y/z vêm normalizados (0–1 na imagem); z é profundidade relativa."""
+
     name: str
     x: float
     y: float
@@ -34,7 +38,7 @@ class LandmarkPoint:
 
 
 class PoseDetector:
-    """Encapsula o PoseLandmarker (MediaPipe Tasks) e devolve landmarks estruturados."""
+    """Roda o modelo em cada frame e devolve dados estruturados (não desenha nada)."""
 
     def __init__(self, model_path: Path) -> None:
         self.model_path = Path(model_path)
@@ -47,6 +51,7 @@ class PoseDetector:
         self._landmarker = PoseLandmarker.create_from_options(options)
 
     def detect(self, frame_bgr: np.ndarray, timestamp_ms: int) -> list[LandmarkPoint] | None:
+        # MediaPipe espera RGB; OpenCV entrega BGR.
         rgb = np.ascontiguousarray(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB))
         mp_image = Image(image_format=ImageFormat.SRGB, data=rgb)
         result = self._landmarker.detect_for_video(mp_image, timestamp_ms)
@@ -54,6 +59,7 @@ class PoseDetector:
         if not result.pose_landmarks:
             return None
 
+        # MVP: primeira (e única) pose do quadro.
         pose = result.pose_landmarks[0]
         landmarks: list[LandmarkPoint] = []
         for index, landmark in enumerate(pose):
@@ -77,6 +83,7 @@ class PoseDetector:
 
 
 def ensure_model(model_path: Path) -> None:
+    """Baixa o .task na primeira execução se ainda não existir em models/."""
     model_path = Path(model_path)
     if model_path.exists() and model_path.stat().st_size > 0:
         return

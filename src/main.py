@@ -1,3 +1,5 @@
+"""Ponto de entrada: lê o vídeo, detecta pose, desenha o skeleton e exporta dados."""
+
 from pathlib import Path
 import sys
 import time
@@ -17,6 +19,8 @@ DEFAULT_INPUT = PROJECT_ROOT / "input" / "ataque_volei.mp4"
 DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "ataque_volei_pose.mp4"
 DEFAULT_JSON = PROJECT_ROOT / "output" / "landmarks.json"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
+
+# Recorte usado no print de diagnóstico (o vídeo desenha o esqueleto completo).
 SAMPLE_LANDMARKS = (
     "NOSE",
     "LEFT_SHOULDER",
@@ -37,6 +41,7 @@ SAMPLE_LANDMARKS = (
 
 
 def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
+    """Timestamp crescente em ms — o PoseLandmarker em modo VIDEO exige isso."""
     safe_fps = fps if fps > 0 else 30.0
     timestamp = int(round(frame_index * 1000.0 / safe_fps))
     if timestamp <= last_timestamp:
@@ -45,6 +50,7 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
 
 
 def _print_sample(frame_index: int, landmarks) -> None:
+    """Mostra um frame no terminal para conferir coordenadas e ângulo do cotovelo."""
     print(f"Frame {frame_index}")
     print()
     for name in SAMPLE_LANDMARKS:
@@ -91,12 +97,9 @@ def _print_stats(info, processed: int, with_pose: int, elapsed_s: float) -> None
 
 
 def main() -> None:
-    video_path = DEFAULT_INPUT
-    output_path = DEFAULT_OUTPUT
-    json_path = DEFAULT_JSON
-    reader = VideoReader(video_path)
+    reader = VideoReader(DEFAULT_INPUT)
     info = reader.open()
-    writer = VideoWriter(output_path, info)
+    writer = VideoWriter(DEFAULT_OUTPUT, info)
     detector = PoseDetector(DEFAULT_MODEL)
     renderer = PoseRenderer()
 
@@ -117,6 +120,7 @@ def main() -> None:
                     _print_sample(processed, landmarks)
                     sample_printed = True
             records.append(frame_record(processed, landmarks))
+            # Sempre um frame novo (preto + skeleton). Nunca reutiliza a imagem original.
             canvas = renderer.render(landmarks, info.width, info.height)
             writer.write(canvas)
             processed += 1
@@ -125,11 +129,11 @@ def main() -> None:
         writer.close()
         detector.close()
 
-    write_landmarks_json(json_path, records)
+    write_landmarks_json(DEFAULT_JSON, records)
     elapsed = time.perf_counter() - started
     _print_stats(info, processed, with_pose, elapsed)
-    print(f"Saída: {output_path}")
-    print(f"JSON: {json_path}")
+    print(f"Saída: {DEFAULT_OUTPUT}")
+    print(f"JSON: {DEFAULT_JSON}")
 
 
 if __name__ == "__main__":

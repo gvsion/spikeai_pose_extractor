@@ -7,8 +7,7 @@ __pycache__/
 .vscode/
 .cursor/
 .env
-output/*
-!output/.gitkeep
+output/
 models/*.task
 *.mp4
 *.avi

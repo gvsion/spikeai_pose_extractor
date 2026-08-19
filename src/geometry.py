@@ -1,9 +1,12 @@
+"""Métricas simples a partir dos landmarks (visibility e ângulo do cotovelo)."""
+
 import math
 
 from pose import LandmarkPoint
 
 
 def is_visible(landmark: LandmarkPoint, threshold: float) -> bool:
+    """visibility ausente conta como visível; caso contrário exige score >= threshold."""
     if landmark.visibility is None:
         return True
     return landmark.visibility >= threshold

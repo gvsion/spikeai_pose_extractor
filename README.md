@@ -74,9 +74,9 @@ Ao final da execução o terminal mostra estatísticas: frames com/sem pose, tax
 ## Estrutura
 
 ```text
-input/          vídeo de entrada (local; não versionado)
-output/         vídeo e JSON gerados (não versionados)
-models/         modelo .task do Pose Landmarker (baixado localmente)
+input/          coloque o .mp4 aqui (a pasta sobe no Git via .gitkeep; o vídeo não)
+output/         criado na execução (vídeo e JSON; ignorado pelo Git)
+models/         criado na execução (modelo .task baixado; ignorado)
 src/main.py     orquestra o loop
 src/video.py    leitura e escrita de vídeo
 src/pose.py     MediaPipe + landmarks estruturados

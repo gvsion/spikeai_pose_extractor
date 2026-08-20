@@ -13,12 +13,21 @@ def elbow_angle(
     shoulder: LandmarkPoint | None,
     elbow: LandmarkPoint | None,
     wrist: LandmarkPoint | None,
+    width: int,
+    height: int,
 ) -> float | None:
     if shoulder is None or elbow is None or wrist is None:
         return None
 
-    v_shoulder = (shoulder.x - elbow.x, shoulder.y - elbow.y)
-    v_wrist = (wrist.x - elbow.x, wrist.y - elbow.y)
+    # Vetores em pixels (x/y normalizados distorcem o ângulo se a imagem não for quadrada).
+    v_shoulder = (
+        (shoulder.x - elbow.x) * width,
+        (shoulder.y - elbow.y) * height,
+    )
+    v_wrist = (
+        (wrist.x - elbow.x) * width,
+        (wrist.y - elbow.y) * height,
+    )
     return _angle_between(v_shoulder, v_wrist)
 
 

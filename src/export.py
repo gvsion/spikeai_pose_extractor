@@ -13,7 +13,12 @@ def _round(value: float | None, decimals: int) -> float | None:
     return round(value, decimals)
 
 
-def frame_record(frame_index: int, landmarks: list[LandmarkPoint] | None) -> dict:
+def frame_record(
+    frame_index: int,
+    landmarks: list[LandmarkPoint] | None,
+    width: int,
+    height: int,
+) -> dict:
     if not landmarks:
         return {"frame": frame_index, "landmarks": [], "elbow_angle": None}
 
@@ -35,6 +40,8 @@ def frame_record(frame_index: int, landmarks: list[LandmarkPoint] | None) -> dic
                     find_landmark(landmarks, "LEFT_SHOULDER"),
                     find_landmark(landmarks, "LEFT_ELBOW"),
                     find_landmark(landmarks, "LEFT_WRIST"),
+                    width,
+                    height,
                 )
             ),
             "right": quantize_angle(
@@ -42,6 +49,8 @@ def frame_record(frame_index: int, landmarks: list[LandmarkPoint] | None) -> dic
                     find_landmark(landmarks, "RIGHT_SHOULDER"),
                     find_landmark(landmarks, "RIGHT_ELBOW"),
                     find_landmark(landmarks, "RIGHT_WRIST"),
+                    width,
+                    height,
                 )
             ),
         },

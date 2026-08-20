@@ -47,7 +47,7 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
     return timestamp
 
 
-def _print_sample(frame_index: int, landmarks) -> None:
+def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
     print(f"Frame {frame_index}")
     print()
     for name in SAMPLE_LANDMARKS:
@@ -68,11 +68,15 @@ def _print_sample(frame_index: int, landmarks) -> None:
         find_landmark(landmarks, "LEFT_SHOULDER"),
         find_landmark(landmarks, "LEFT_ELBOW"),
         find_landmark(landmarks, "LEFT_WRIST"),
+        width,
+        height,
     )
     right = elbow_angle(
         find_landmark(landmarks, "RIGHT_SHOULDER"),
         find_landmark(landmarks, "RIGHT_ELBOW"),
         find_landmark(landmarks, "RIGHT_WRIST"),
+        width,
+        height,
     )
     print("ELBOW_ANGLE")
     left_text = format_angle(left)
@@ -117,9 +121,9 @@ def main() -> None:
             if landmarks is not None:
                 with_pose += 1
                 if not sample_printed:
-                    _print_sample(processed, landmarks)
+                    _print_sample(processed, landmarks, info.width, info.height)
                     sample_printed = True
-            records.append(frame_record(processed, landmarks))
+            records.append(frame_record(processed, landmarks, info.width, info.height))
             only_pose = renderer.render(landmarks, info.width, info.height)
             original_pose = renderer.render(
                 landmarks, info.width, info.height, base_frame=frame

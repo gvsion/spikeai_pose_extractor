@@ -94,6 +94,7 @@ requirements.txt
 ## Limitações
 
 - Pose **2D** com profundidade relativa (`z`); não é reconstrução biomecânica 3D.
+- O ângulo do cotovelo é 2D no plano da imagem (em pixels), não o ângulo articular 3D.
 - Oclusão, baixa iluminação e movimentos muito rápidos reduzem a qualidade dos landmarks.
 - Atleta parcialmente fora do quadro gera skeleton incompleto; fora por completo gera frame vazio no vídeo obrigatório.
 - Com várias pessoas, usa **apenas a primeira pose** detectada.

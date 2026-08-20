@@ -58,6 +58,8 @@ class PoseRenderer:
                 find_landmark(landmarks, shoulder_name),
                 elbow,
                 find_landmark(landmarks, wrist_name),
+                width,
+                height,
             )
             if elbow is None or angle is None:
                 continue

@@ -1,12 +1,9 @@
-# Exporta os landmarks (dados) para JSON, um objeto por frame.
-
 import json
 from pathlib import Path
 
 from geometry import elbow_angle, quantize_angle
 from pose import LandmarkPoint, find_landmark
 
-# Reduz a precisão dos dados para menos casas decimais.
 COORD_DECIMALS = 4
 
 

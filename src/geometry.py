@@ -1,12 +1,9 @@
-# Métricas simples a partir dos landmarks (visibility e ângulo do cotovelo).
-
 import math
 
 from pose import LandmarkPoint
 
 
 def is_visible(landmark: LandmarkPoint, threshold: float) -> bool:
-    # visibility ausente conta como visível; caso contrário exige score >= threshold.
     if landmark.visibility is None:
         return True
     return landmark.visibility >= threshold
@@ -17,7 +14,6 @@ def elbow_angle(
     elbow: LandmarkPoint | None,
     wrist: LandmarkPoint | None,
 ) -> float | None:
-    # Ângulo no cotovelo (ombro → cotovelo → punho), em graus, no plano da imagem.
     if shoulder is None or elbow is None or wrist is None:
         return None
 
@@ -27,7 +23,6 @@ def elbow_angle(
 
 
 def quantize_angle(value: float | None) -> int | float | None:
-    # Inteiro se for número fechado; senão 1 casa decimal.
     if value is None:
         return None
     rounded = round(value, 1)

@@ -1,5 +1,3 @@
-# Desenha o skeleton em um frame preto. O frame original nunca entra na saída.
-
 import numpy as np
 import cv2
 from mediapipe.tasks.python.vision.pose_landmarker import PoseLandmarksConnections
@@ -11,8 +9,6 @@ DEFAULT_VISIBILITY_THRESHOLD = 0.5
 
 
 class PoseRenderer:
-    # Pontos (vermelho) + conexões oficiais do MediaPipe (verde).
-
     def __init__(
         self,
         point_radius: int = 4,
@@ -34,7 +30,6 @@ class PoseRenderer:
         height: int,
         base_frame: np.ndarray | None = None,
     ) -> np.ndarray:
-        # Fundo preto (base_frame=None) ou cópia do frame original (overlay).
         canvas = base_frame.copy() if base_frame is not None else self.empty_frame(width, height)
         if not landmarks:
             return canvas
@@ -92,7 +87,6 @@ class PoseRenderer:
         for connection in self._connections:
             if connection.start >= len(pixels) or connection.end >= len(pixels):
                 continue
-            # Só liga dois pontos se ambos passaram no filtro de visibility.
             if not visible[connection.start] or not visible[connection.end]:
                 continue
             cv2.line(
@@ -116,7 +110,6 @@ class PoseRenderer:
 
 
 def _to_pixel(landmark: LandmarkPoint, width: int, height: int) -> tuple[int, int]:
-    # Converte coordenada normalizada (0–1) para pixel do frame.
     x = int(round(landmark.x * width))
     y = int(round(landmark.y * height))
     return x, y

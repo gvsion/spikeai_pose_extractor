@@ -12,7 +12,7 @@ Vídeo → OpenCV → Frames → MediaPipe Pose Landmarker → Landmarks → Ren
 
 ## Tecnologias
 
-- Python **3.12** (obrigatório neste setup: MediaPipe 1.0 não instala em Python 3.14)
+- Python **3.12**
 - OpenCV
 - MediaPipe Pose Landmarker (Tasks API)
 - Git

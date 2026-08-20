@@ -1,5 +1,3 @@
-# Ponto de entrada: lê o vídeo, detecta pose, desenha o skeleton e exporta dados.
-
 from pathlib import Path
 import sys
 import time
@@ -21,7 +19,6 @@ DEFAULT_OVERLAY = PROJECT_ROOT / "output" / "original_pose.mp4"
 DEFAULT_JSON = PROJECT_ROOT / "output" / "landmarks.json"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
 
-# Recorte usado no print de diagnóstico (o vídeo desenha o esqueleto completo).
 SAMPLE_LANDMARKS = (
     "NOSE",
     "LEFT_SHOULDER",
@@ -42,7 +39,7 @@ SAMPLE_LANDMARKS = (
 
 
 def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
-    # Timestamp crescente em ms — o PoseLandmarker em modo VIDEO exige isso.
+    # PoseLandmarker em modo VIDEO exige timestamps crescentes em ms.
     safe_fps = fps if fps > 0 else 30.0
     timestamp = int(round(frame_index * 1000.0 / safe_fps))
     if timestamp <= last_timestamp:
@@ -51,7 +48,6 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
 
 
 def _print_sample(frame_index: int, landmarks) -> None:
-    # Mostra um frame no terminal para conferir coordenadas e ângulo do cotovelo.
     print(f"Frame {frame_index}")
     print()
     for name in SAMPLE_LANDMARKS:

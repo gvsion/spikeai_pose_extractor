@@ -1,4 +1,4 @@
-"""Leitura e escrita de vídeo com OpenCV (separado da lógica de pose)."""
+# Leitura e escrita de vídeo com OpenCV (separado da lógica de pose).
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,7 +16,7 @@ class VideoInfo:
 
 
 class VideoReader:
-    """Abre o MP4 de entrada, lê metadados e entrega os frames um a um."""
+    # Abre o MP4 de entrada, lê metadados e entrega os frames um a um.
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -58,7 +58,7 @@ class VideoReader:
 
 
 class VideoWriter:
-    """Grava o MP4 de saída com o mesmo FPS e resolução da entrada."""
+    # Grava o MP4 de saída com o mesmo FPS e resolução da entrada.
 
     def __init__(self, path: Path, info: VideoInfo) -> None:
         self.path = Path(path)

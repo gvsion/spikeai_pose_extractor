@@ -1,17 +1,17 @@
-"""Desenha o skeleton em um frame preto. O frame original nunca entra na saída."""
+# Desenha o skeleton em um frame preto. O frame original nunca entra na saída.
 
 import numpy as np
 import cv2
 from mediapipe.tasks.python.vision.pose_landmarker import PoseLandmarksConnections
 
-from geometry import elbow_angle, is_visible
+from geometry import elbow_angle, format_angle, is_visible
 from pose import LandmarkPoint, find_landmark
 
 DEFAULT_VISIBILITY_THRESHOLD = 0.5
 
 
 class PoseRenderer:
-    """Pontos (vermelho) + conexões oficiais do MediaPipe (verde)."""
+    # Pontos (vermelho) + conexões oficiais do MediaPipe (verde).
 
     def __init__(
         self,
@@ -34,7 +34,7 @@ class PoseRenderer:
         height: int,
         base_frame: np.ndarray | None = None,
     ) -> np.ndarray:
-        """Fundo preto (base_frame=None) ou cópia do frame original (overlay)."""
+        # Fundo preto (base_frame=None) ou cópia do frame original (overlay).
         canvas = base_frame.copy() if base_frame is not None else self.empty_frame(width, height)
         if not landmarks:
             return canvas
@@ -68,10 +68,13 @@ class PoseRenderer:
                 continue
             if not is_visible(elbow, self.visibility_threshold):
                 continue
+            angle_text = format_angle(angle)
+            if angle_text is None:
+                continue
             x, y = _to_pixel(elbow, width, height)
             cv2.putText(
                 canvas,
-                f"{label} {angle:.0f}",
+                f"{label} {angle_text}",
                 (x + 8, y - 8),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.45,
@@ -113,7 +116,7 @@ class PoseRenderer:
 
 
 def _to_pixel(landmark: LandmarkPoint, width: int, height: int) -> tuple[int, int]:
-    """Converte coordenada normalizada (0–1) para pixel do frame."""
+    # Converte coordenada normalizada (0–1) para pixel do frame.
     x = int(round(landmark.x * width))
     y = int(round(landmark.y * height))
     return x, y

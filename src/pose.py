@@ -1,4 +1,4 @@
-"""Detecção de pose: MediaPipe Pose Landmarker → lista de landmarks nomeados."""
+# Detecção de pose: MediaPipe Pose Landmarker → lista de landmarks nomeados.
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -28,8 +28,7 @@ LANDMARK_NAMES = {item.value: item.name for item in PoseLandmark}
 
 @dataclass(frozen=True)
 class LandmarkPoint:
-    """Um ponto corporal. x/y/z vêm normalizados (0–1 na imagem); z é profundidade relativa."""
-
+    # Um ponto corporal. x/y/z vêm normalizados (0–1 na imagem); z é profundidade relativa.
     name: str
     x: float
     y: float
@@ -38,7 +37,7 @@ class LandmarkPoint:
 
 
 class PoseDetector:
-    """Roda o modelo em cada frame e devolve dados estruturados (não desenha nada)."""
+    # Roda o modelo em cada frame e devolve dados estruturados (não desenha nada).
 
     def __init__(self, model_path: Path) -> None:
         self.model_path = Path(model_path)
@@ -83,7 +82,7 @@ class PoseDetector:
 
 
 def ensure_model(model_path: Path) -> None:
-    """Baixa o .task na primeira execução se ainda não existir em models/."""
+    # Baixa o .task na primeira execução se ainda não existir em models/.
     model_path = Path(model_path)
     if model_path.exists() and model_path.stat().st_size > 0:
         return

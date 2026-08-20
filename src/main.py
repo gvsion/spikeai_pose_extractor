@@ -1,4 +1,4 @@
-"""Ponto de entrada: lê o vídeo, detecta pose, desenha o skeleton e exporta dados."""
+# Ponto de entrada: lê o vídeo, detecta pose, desenha o skeleton e exporta dados.
 
 from pathlib import Path
 import sys
@@ -10,7 +10,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from export import frame_record, write_landmarks_json
-from geometry import elbow_angle
+from geometry import elbow_angle, format_angle
 from pose import PoseDetector, find_landmark
 from renderer import PoseRenderer
 from video import VideoReader, VideoWriter
@@ -42,7 +42,7 @@ SAMPLE_LANDMARKS = (
 
 
 def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
-    """Timestamp crescente em ms — o PoseLandmarker em modo VIDEO exige isso."""
+    # Timestamp crescente em ms — o PoseLandmarker em modo VIDEO exige isso.
     safe_fps = fps if fps > 0 else 30.0
     timestamp = int(round(frame_index * 1000.0 / safe_fps))
     if timestamp <= last_timestamp:
@@ -51,7 +51,7 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
 
 
 def _print_sample(frame_index: int, landmarks) -> None:
-    """Mostra um frame no terminal para conferir coordenadas e ângulo do cotovelo."""
+    # Mostra um frame no terminal para conferir coordenadas e ângulo do cotovelo.
     print(f"Frame {frame_index}")
     print()
     for name in SAMPLE_LANDMARKS:
@@ -65,7 +65,7 @@ def _print_sample(frame_index: int, landmarks) -> None:
         print(f"x: {landmark.x:.4f}")
         print(f"y: {landmark.y:.4f}")
         print(f"z: {landmark.z:.4f}")
-        print(f"visibility: {visibility}")
+        print(f"visibility: {visibility if isinstance(visibility, str) else f'{visibility:.4f}'}")
         print()
 
     left = elbow_angle(
@@ -79,8 +79,10 @@ def _print_sample(frame_index: int, landmarks) -> None:
         find_landmark(landmarks, "RIGHT_WRIST"),
     )
     print("ELBOW_ANGLE")
-    print(f"left: {left:.1f}°" if left is not None else "left: n/a")
-    print(f"right: {right:.1f}°" if right is not None else "right: n/a")
+    left_text = format_angle(left)
+    right_text = format_angle(right)
+    print(f"left: {left_text}°" if left_text is not None else "left: n/a")
+    print(f"right: {right_text}°" if right_text is not None else "right: n/a")
     print()
 
 

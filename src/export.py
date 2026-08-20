@@ -1,10 +1,19 @@
-"""Exporta os landmarks (dados) para JSON, um objeto por frame."""
+# Exporta os landmarks (dados) para JSON, um objeto por frame.
 
 import json
 from pathlib import Path
 
-from geometry import elbow_angle
+from geometry import elbow_angle, quantize_angle
 from pose import LandmarkPoint, find_landmark
+
+# Reduz a precisão dos dados para menos casas decimais.
+COORD_DECIMALS = 4
+
+
+def _round(value: float | None, decimals: int) -> float | None:
+    if value is None:
+        return None
+    return round(value, decimals)
 
 
 def frame_record(frame_index: int, landmarks: list[LandmarkPoint] | None) -> dict:
@@ -16,23 +25,27 @@ def frame_record(frame_index: int, landmarks: list[LandmarkPoint] | None) -> dic
         "landmarks": [
             {
                 "name": landmark.name,
-                "x": landmark.x,
-                "y": landmark.y,
-                "z": landmark.z,
-                "visibility": landmark.visibility,
+                "x": _round(landmark.x, COORD_DECIMALS),
+                "y": _round(landmark.y, COORD_DECIMALS),
+                "z": _round(landmark.z, COORD_DECIMALS),
+                "visibility": _round(landmark.visibility, COORD_DECIMALS),
             }
             for landmark in landmarks
         ],
         "elbow_angle": {
-            "left": elbow_angle(
-                find_landmark(landmarks, "LEFT_SHOULDER"),
-                find_landmark(landmarks, "LEFT_ELBOW"),
-                find_landmark(landmarks, "LEFT_WRIST"),
+            "left": quantize_angle(
+                elbow_angle(
+                    find_landmark(landmarks, "LEFT_SHOULDER"),
+                    find_landmark(landmarks, "LEFT_ELBOW"),
+                    find_landmark(landmarks, "LEFT_WRIST"),
+                )
             ),
-            "right": elbow_angle(
-                find_landmark(landmarks, "RIGHT_SHOULDER"),
-                find_landmark(landmarks, "RIGHT_ELBOW"),
-                find_landmark(landmarks, "RIGHT_WRIST"),
+            "right": quantize_angle(
+                elbow_angle(
+                    find_landmark(landmarks, "RIGHT_SHOULDER"),
+                    find_landmark(landmarks, "RIGHT_ELBOW"),
+                    find_landmark(landmarks, "RIGHT_WRIST"),
+                )
             ),
         },
     }

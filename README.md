@@ -72,7 +72,7 @@ O vídeo obrigatório usa fundo preto: atleta, quadra, bola e rede **não** apar
 
 `original_pose.mp4` mantém o vídeo original com o skeleton por cima, só para conferir a detecção.
 
-Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda todos os pontos do frame e o ângulo do cotovelo. O valor também é escrito perto do cotovelo no vídeo.
+Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda os pontos do frame com `x`/`y`/`z`/`visibility` arredondados a 4 casas e o ângulo do cotovelo (inteiro se fechado, 1 casa se quebrado). O ângulo também é escrito perto do cotovelo no vídeo.
 
 Ao final, o terminal mostra frames com/sem pose, taxa de detecção e tempo total.
 

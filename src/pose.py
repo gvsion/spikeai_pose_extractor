@@ -23,6 +23,23 @@ MODEL_URL = (
 
 LANDMARK_NAMES = {item.value: item.name for item in PoseLandmark}
 
+# Detalhe facial do MediaPipe → um único ponto de cabeça (NOSE).
+FACE_LANDMARK_NAMES = frozenset(
+    {
+        "NOSE",
+        "LEFT_EYE_INNER",
+        "LEFT_EYE",
+        "LEFT_EYE_OUTER",
+        "RIGHT_EYE_INNER",
+        "RIGHT_EYE",
+        "RIGHT_EYE_OUTER",
+        "LEFT_EAR",
+        "RIGHT_EAR",
+        "MOUTH_LEFT",
+        "MOUTH_RIGHT",
+    }
+)
+
 
 @dataclass(frozen=True)
 class LandmarkPoint:
@@ -68,7 +85,7 @@ class PoseDetector:
                     else None,
                 )
             )
-        return landmarks
+        return simplify_face_to_head(landmarks)
 
     def close(self) -> None:
         if self._landmarker is not None:
@@ -89,3 +106,24 @@ def find_landmark(landmarks: list[LandmarkPoint], name: str) -> LandmarkPoint | 
         if landmark.name == name:
             return landmark
     return None
+
+
+# Simplifica os detalhes de NOSE para um único ponto HEAD
+def simplify_face_to_head(landmarks: list[LandmarkPoint]) -> list[LandmarkPoint]:
+    nose = find_landmark(landmarks, "NOSE")
+    simplified: list[LandmarkPoint] = []
+    if nose is not None:
+        simplified.append(
+            LandmarkPoint(
+                name="HEAD",
+                x=nose.x,
+                y=nose.y,
+                z=nose.z,
+                visibility=nose.visibility,
+            )
+        )
+    for landmark in landmarks:
+        if landmark.name in FACE_LANDMARK_NAMES:
+            continue
+        simplified.append(landmark)
+    return simplified

@@ -22,7 +22,7 @@ DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
 
 # Dividindo os landmarks em grupos para melhor visualização
 SAMPLE_LANDMARKS = (
-    "NOSE",
+    "HEAD",
     "LEFT_SHOULDER",
     "RIGHT_SHOULDER",
     "LEFT_ELBOW",

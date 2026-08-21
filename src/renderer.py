@@ -1,11 +1,42 @@
 import numpy as np
 import cv2
-from mediapipe.tasks.python.vision.pose_landmarker import PoseLandmarksConnections
 
 from geometry import elbow_angle, format_angle, is_visible, knee_angle
 from pose import LandmarkPoint, find_landmark
 
 DEFAULT_VISIBILITY_THRESHOLD = 0.5
+
+# Conexões entre landmarks
+SKELETON_CONNECTIONS = (
+    ("HEAD", "LEFT_SHOULDER"),
+    ("HEAD", "RIGHT_SHOULDER"),
+    ("LEFT_SHOULDER", "RIGHT_SHOULDER"),
+    ("LEFT_SHOULDER", "LEFT_ELBOW"),
+    ("LEFT_ELBOW", "LEFT_WRIST"),
+    ("LEFT_WRIST", "LEFT_PINKY"),
+    ("LEFT_WRIST", "LEFT_INDEX"),
+    ("LEFT_WRIST", "LEFT_THUMB"),
+    ("LEFT_PINKY", "LEFT_INDEX"),
+    ("RIGHT_SHOULDER", "RIGHT_ELBOW"),
+    ("RIGHT_ELBOW", "RIGHT_WRIST"),
+    ("RIGHT_WRIST", "RIGHT_PINKY"),
+    ("RIGHT_WRIST", "RIGHT_INDEX"),
+    ("RIGHT_WRIST", "RIGHT_THUMB"),
+    ("RIGHT_PINKY", "RIGHT_INDEX"),
+    ("LEFT_SHOULDER", "LEFT_HIP"),
+    ("RIGHT_SHOULDER", "RIGHT_HIP"),
+    ("LEFT_HIP", "RIGHT_HIP"),
+    ("LEFT_HIP", "LEFT_KNEE"),
+    ("RIGHT_HIP", "RIGHT_KNEE"),
+    ("LEFT_KNEE", "LEFT_ANKLE"),
+    ("RIGHT_KNEE", "RIGHT_ANKLE"),
+    ("LEFT_ANKLE", "LEFT_HEEL"),
+    ("RIGHT_ANKLE", "RIGHT_HEEL"),
+    ("LEFT_HEEL", "LEFT_FOOT_INDEX"),
+    ("RIGHT_HEEL", "RIGHT_FOOT_INDEX"),
+    ("LEFT_ANKLE", "LEFT_FOOT_INDEX"),
+    ("RIGHT_ANKLE", "RIGHT_FOOT_INDEX"),
+)
 
 # Renderização da pose
 class PoseRenderer:
@@ -18,7 +49,7 @@ class PoseRenderer:
         self.point_radius = point_radius
         self.line_thickness = line_thickness
         self.visibility_threshold = visibility_threshold
-        self._connections = PoseLandmarksConnections.POSE_LANDMARKS
+        self._connections = SKELETON_CONNECTIONS
 
     def empty_frame(self, width: int, height: int) -> np.ndarray:
         return np.zeros((height, width, 3), dtype=np.uint8)
@@ -34,10 +65,9 @@ class PoseRenderer:
         if not landmarks:
             return canvas
 
-        pixels = [_to_pixel(landmark, width, height) for landmark in landmarks]
-        visible = [is_visible(landmark, self.visibility_threshold) for landmark in landmarks]
-        self._draw_connections(canvas, pixels, visible)
-        self._draw_points(canvas, pixels, visible)
+        by_name = {landmark.name: landmark for landmark in landmarks}
+        self._draw_connections(canvas, by_name, width, height)
+        self._draw_points(canvas, landmarks, width, height)
         self._draw_joint_angles(canvas, landmarks, width, height)
         return canvas
 
@@ -89,18 +119,23 @@ class PoseRenderer:
     def _draw_connections(
         self,
         canvas: np.ndarray,
-        pixels: list[tuple[int, int]],
-        visible: list[bool],
+        by_name: dict[str, LandmarkPoint],
+        width: int,
+        height: int,
     ) -> None:
-        for connection in self._connections:
-            if connection.start >= len(pixels) or connection.end >= len(pixels):
+        for start_name, end_name in self._connections:
+            start = by_name.get(start_name)
+            end = by_name.get(end_name)
+            if start is None or end is None:
                 continue
-            if not visible[connection.start] or not visible[connection.end]:
+            if not is_visible(start, self.visibility_threshold):
+                continue
+            if not is_visible(end, self.visibility_threshold):
                 continue
             cv2.line(
                 canvas,
-                pixels[connection.start],
-                pixels[connection.end],
+                _to_pixel(start, width, height),
+                _to_pixel(end, width, height),
                 (0, 255, 0),
                 self.line_thickness,
             )
@@ -109,13 +144,20 @@ class PoseRenderer:
     def _draw_points(
         self,
         canvas: np.ndarray,
-        pixels: list[tuple[int, int]],
-        visible: list[bool],
+        landmarks: list[LandmarkPoint],
+        width: int,
+        height: int,
     ) -> None:
-        for point, is_on in zip(pixels, visible):
-            if not is_on:
+        for landmark in landmarks:
+            if not is_visible(landmark, self.visibility_threshold):
                 continue
-            cv2.circle(canvas, point, self.point_radius, (0, 0, 255), thickness=-1)
+            cv2.circle(
+                canvas,
+                _to_pixel(landmark, width, height),
+                self.point_radius,
+                (0, 0, 255),
+                thickness=-1,
+            )
 
 # Converte o landmark para pixels
 def _to_pixel(landmark: LandmarkPoint, width: int, height: int) -> tuple[int, int]:

@@ -33,7 +33,7 @@ class LandmarkPoint:
     z: float
     visibility: float | None
 
-
+# Detecção de pose
 class PoseDetector:
     def __init__(self, model_path: Path) -> None:
         self.model_path = Path(model_path)
@@ -83,7 +83,7 @@ def ensure_model(model_path: Path) -> None:
     model_path.parent.mkdir(parents=True, exist_ok=True)
     urlretrieve(MODEL_URL, model_path)
 
-
+# Encontra os landmarks pelo nome
 def find_landmark(landmarks: list[LandmarkPoint], name: str) -> LandmarkPoint | None:
     for landmark in landmarks:
         if landmark.name == name:

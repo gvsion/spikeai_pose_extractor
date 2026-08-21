@@ -4,6 +4,7 @@ from pathlib import Path
 import cv2
 
 
+# Informações do vídeo
 @dataclass(frozen=True)
 class VideoInfo:
     path: Path
@@ -12,7 +13,7 @@ class VideoInfo:
     height: int
     frame_count: int
 
-
+# Leitura do vídeo
 class VideoReader:
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -52,7 +53,7 @@ class VideoReader:
             self._capture.release()
             self._capture = None
 
-
+# Escrita do vídeo
 class VideoWriter:
     def __init__(self, path: Path, info: VideoInfo) -> None:
         self.path = Path(path)

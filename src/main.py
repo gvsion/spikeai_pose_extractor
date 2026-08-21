@@ -19,6 +19,7 @@ DEFAULT_OVERLAY = PROJECT_ROOT / "output" / "original_pose.mp4"
 DEFAULT_JSON = PROJECT_ROOT / "output" / "landmarks.json"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
 
+# Dividindo os landmarks em grupos para melhor visualização
 SAMPLE_LANDMARKS = (
     "NOSE",
     "LEFT_SHOULDER",
@@ -37,16 +38,15 @@ SAMPLE_LANDMARKS = (
     "RIGHT_FOOT_INDEX",
 )
 
-
+# Função para calcular o timestamp em milissegundos
 def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
-    # PoseLandmarker em modo VIDEO exige timestamps crescentes em ms.
     safe_fps = fps if fps > 0 else 30.0
     timestamp = int(round(frame_index * 1000.0 / safe_fps))
     if timestamp <= last_timestamp:
         timestamp = last_timestamp + 1
     return timestamp
 
-
+# Função para imprimir os landmarks e o ângulo do cotovelo
 def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
     print(f"Frame {frame_index}")
     print()
@@ -85,7 +85,7 @@ def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
     print(f"right: {right_text}°" if right_text is not None else "right: n/a")
     print()
 
-
+# Função para imprimir as estatísticas do vídeo
 def _print_stats(info, processed: int, with_pose: int, elapsed_s: float) -> None:
     without_pose = processed - with_pose
     rate = (with_pose / processed * 100) if processed else 0.0
@@ -137,6 +137,7 @@ def main() -> None:
         overlay_writer.close()
         detector.close()
 
+    # Escreve os landmarks em um arquivo JSON
     write_landmarks_json(DEFAULT_JSON, records)
     elapsed = time.perf_counter() - started
     _print_stats(info, processed, with_pose, elapsed)

@@ -2,7 +2,7 @@
 
 Primeira etapa da pipeline de visão computacional do SpikeAI: transformar um vídeo de ataque em um novo vídeo contendo **somente o skeleton** sobre fundo vazio.
 
-Não há detecção da bola, classificação do ataque nem feedback técnico. Os ângulos de cotovelo e joelho no vídeo/JSON são só demonstração de geometria (landmarks → vetores → graus), não o pipeline biomecânico do Spike.AI.
+Não há detecção da bola, classificação do ataque nem feedback técnico. Os ângulos de cotovelo e joelho no vídeo/CSV são só demonstração de geometria (landmarks → vetores → graus).
 
 ## Pipeline
 
@@ -65,13 +65,14 @@ Na primeira execução o modelo é baixado para `models/pose_landmarker_lite.tas
 | Entrada | `input/ataque_volei.mp4` |
 | Somente skeleton (obrigatório) | `output/ataque_volei_pose.mp4` |
 | Original + skeleton (validação) | `output/original_pose.mp4` |
-| Dados | `output/landmarks.json` |
+| Dados (landmarks) | `output/landmarks.csv` |
+| Dados (ângulos) | `output/angles.csv` |
 
 O vídeo obrigatório usa fundo preto: atleta, quadra, bola e rede **não** aparecem. Frames sem pose ficam pretos nesse arquivo.
 
 `original_pose.mp4` mantém o vídeo original com o skeleton por cima, só para conferir a detecção.
 
-Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda os pontos do frame com `x`/`y`/`z`/`visibility` arredondados, `elbow_angle` e `knee_angle`. Os valores também aparecem no vídeo (`L`/`R` no cotovelo, `LK`/`RK` no joelho).
+Landmarks com `visibility` abaixo de 0.5 não são desenhados. O CSV de landmarks é flat (`frame`, `landmark`, `x`, `y`, `z`, `visibility`). Os ângulos ficam em `angles.csv` (uma linha por frame). Os arquivos usam `;` como separador (compatível com Excel em português). No vídeo: `L`/`R` no cotovelo, `LK`/`RK` no joelho.
 
 Ao final, o terminal mostra frames com/sem pose, taxa de detecção e tempo total.
 
@@ -79,14 +80,14 @@ Ao final, o terminal mostra frames com/sem pose, taxa de detecção e tempo tota
 
 ```text
 input/          coloque o .mp4 aqui (a pasta sobe no Git via .gitkeep; o vídeo não)
-output/         criado na execução (vídeos e JSON; ignorado pelo Git)
+output/         criado na execução (vídeos e CSV; ignorado pelo Git)
 models/         criado na execução (modelo .task baixado; ignorado)
 src/main.py     orquestra o loop
 src/video.py    leitura e escrita de vídeo
 src/pose.py     MediaPipe + landmarks estruturados
 src/renderer.py frame vazio + pontos + conexões + ângulo
 src/geometry.py visibility e ângulos (cotovelo / joelho)
-src/export.py   exportação JSON
+src/export.py   exportação CSV
 requirements.txt
 ```
 

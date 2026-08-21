@@ -7,7 +7,7 @@ PROJECT_ROOT = SRC_DIR.parent
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from export import frame_record, write_landmarks_json
+from export import angle_row, landmark_rows, write_angles_csv, write_landmarks_csv
 from geometry import elbow_angle, format_angle, knee_angle
 from pose import PoseDetector, find_landmark
 from renderer import PoseRenderer
@@ -16,7 +16,8 @@ from video import VideoReader, VideoWriter
 DEFAULT_INPUT = PROJECT_ROOT / "input" / "ataque_volei.mp4"
 DEFAULT_OUTPUT = PROJECT_ROOT / "output" / "ataque_volei_pose.mp4"
 DEFAULT_OVERLAY = PROJECT_ROOT / "output" / "original_pose.mp4"
-DEFAULT_JSON = PROJECT_ROOT / "output" / "landmarks.json"
+DEFAULT_LANDMARKS_CSV = PROJECT_ROOT / "output" / "landmarks.csv"
+DEFAULT_ANGLES_CSV = PROJECT_ROOT / "output" / "angles.csv"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "pose_landmarker_lite.task"
 
 # Dividindo os landmarks em grupos para melhor visualização
@@ -132,7 +133,8 @@ def main() -> None:
     with_pose = 0
     last_timestamp = -1
     sample_printed = False
-    records: list[dict] = []
+    landmark_records: list[dict] = []
+    angle_records: list[dict] = []
     started = time.perf_counter()
     try:
         for frame in reader.frames():
@@ -144,7 +146,8 @@ def main() -> None:
                 if not sample_printed:
                     _print_sample(processed, landmarks, info.width, info.height)
                     sample_printed = True
-            records.append(frame_record(processed, landmarks, info.width, info.height))
+            landmark_records.extend(landmark_rows(processed, landmarks))
+            angle_records.append(angle_row(processed, landmarks, info.width, info.height))
             only_pose = renderer.render(landmarks, info.width, info.height)
             original_pose = renderer.render(
                 landmarks, info.width, info.height, base_frame=frame
@@ -157,14 +160,16 @@ def main() -> None:
         only_writer.close()
         overlay_writer.close()
         detector.close()
-
-    # Escreve os landmarks em um arquivo JSON
-    write_landmarks_json(DEFAULT_JSON, records)
+        
+    # Escreve os landmarks e os ângulos em arquivos CSV
+    write_landmarks_csv(DEFAULT_LANDMARKS_CSV, landmark_records)
+    write_angles_csv(DEFAULT_ANGLES_CSV, angle_records)
     elapsed = time.perf_counter() - started
     _print_stats(info, processed, with_pose, elapsed)
     print(f"Somente pose: {DEFAULT_OUTPUT}")
     print(f"Original + pose: {DEFAULT_OVERLAY}")
-    print(f"JSON: {DEFAULT_JSON}")
+    print(f"Landmarks CSV: {DEFAULT_LANDMARKS_CSV}")
+    print(f"Angles CSV: {DEFAULT_ANGLES_CSV}")
 
 
 if __name__ == "__main__":

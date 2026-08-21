@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from geometry import elbow_angle, quantize_angle
+from geometry import elbow_angle, knee_angle, quantize_angle
 from pose import LandmarkPoint, find_landmark
 
 COORD_DECIMALS = 4
@@ -13,7 +13,7 @@ def _round(value: float | None, decimals: int) -> float | None:
     return round(value, decimals)
 
 
-# Função para registrar os landmarks e o ângulo do cotovelo
+# Função para registrar os landmarks e os ângulos do cotovelo e joelho
 def frame_record(
     frame_index: int,
     landmarks: list[LandmarkPoint] | None,
@@ -21,7 +21,12 @@ def frame_record(
     height: int,
 ) -> dict:
     if not landmarks:
-        return {"frame": frame_index, "landmarks": [], "elbow_angle": None}
+        return {
+            "frame": frame_index,
+            "landmarks": [],
+            "elbow_angle": None,
+            "knee_angle": None,
+        }
 
     return {
         "frame": frame_index,
@@ -55,9 +60,29 @@ def frame_record(
                 )
             ),
         },
+        "knee_angle": {
+            "left": quantize_angle(
+                knee_angle(
+                    find_landmark(landmarks, "LEFT_HIP"),
+                    find_landmark(landmarks, "LEFT_KNEE"),
+                    find_landmark(landmarks, "LEFT_ANKLE"),
+                    width,
+                    height,
+                )
+            ),
+            "right": quantize_angle(
+                knee_angle(
+                    find_landmark(landmarks, "RIGHT_HIP"),
+                    find_landmark(landmarks, "RIGHT_KNEE"),
+                    find_landmark(landmarks, "RIGHT_ANKLE"),
+                    width,
+                    height,
+                )
+            ),
+        },
     }
 
-# Função para escrever os landmarks em um arquivo JSON
+
 def write_landmarks_json(path: Path, records: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(records, indent=2), encoding="utf-8")

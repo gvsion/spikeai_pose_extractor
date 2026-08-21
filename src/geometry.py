@@ -9,7 +9,28 @@ def is_visible(landmark: LandmarkPoint, threshold: float) -> bool:
         return True
     return landmark.visibility >= threshold
 
-# Cálculo do ângulo do cotovelo
+def joint_angle(
+    proximal: LandmarkPoint | None,
+    joint: LandmarkPoint | None,
+    distal: LandmarkPoint | None,
+    width: int,
+    height: int,
+) -> float | None:
+    # Ângulo no plano da imagem: proximal → joint → distal (vetores em pixels).
+    if proximal is None or joint is None or distal is None:
+        return None
+
+    v_proximal = (
+        (proximal.x - joint.x) * width,
+        (proximal.y - joint.y) * height,
+    )
+    v_distal = (
+        (distal.x - joint.x) * width,
+        (distal.y - joint.y) * height,
+    )
+    return _angle_between(v_proximal, v_distal)
+
+
 def elbow_angle(
     shoulder: LandmarkPoint | None,
     elbow: LandmarkPoint | None,
@@ -17,22 +38,19 @@ def elbow_angle(
     width: int,
     height: int,
 ) -> float | None:
-    if shoulder is None or elbow is None or wrist is None:
-        return None
-
-    # Vetores em pixels (x/y normalizados distorcem o ângulo se a imagem não for quadrada)
-    v_shoulder = (
-        (shoulder.x - elbow.x) * width,
-        (shoulder.y - elbow.y) * height,
-    )
-    v_wrist = (
-        (wrist.x - elbow.x) * width,
-        (wrist.y - elbow.y) * height,
-    )
-    return _angle_between(v_shoulder, v_wrist)
+    return joint_angle(shoulder, elbow, wrist, width, height)
 
 
-# Arredonda o ângulo para melhor visualização
+def knee_angle(
+    hip: LandmarkPoint | None,
+    knee: LandmarkPoint | None,
+    ankle: LandmarkPoint | None,
+    width: int,
+    height: int,
+) -> float | None:
+    return joint_angle(hip, knee, ankle, width, height)
+
+
 def quantize_angle(value: float | None) -> int | float | None:
     if value is None:
         return None

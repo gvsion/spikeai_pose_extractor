@@ -8,7 +8,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from export import frame_record, write_landmarks_json
-from geometry import elbow_angle, format_angle
+from geometry import elbow_angle, format_angle, knee_angle
 from pose import PoseDetector, find_landmark
 from renderer import PoseRenderer
 from video import VideoReader, VideoWriter
@@ -83,6 +83,27 @@ def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
     right_text = format_angle(right)
     print(f"left: {left_text}°" if left_text is not None else "left: n/a")
     print(f"right: {right_text}°" if right_text is not None else "right: n/a")
+    print()
+
+    left_knee = knee_angle(
+        find_landmark(landmarks, "LEFT_HIP"),
+        find_landmark(landmarks, "LEFT_KNEE"),
+        find_landmark(landmarks, "LEFT_ANKLE"),
+        width,
+        height,
+    )
+    right_knee = knee_angle(
+        find_landmark(landmarks, "RIGHT_HIP"),
+        find_landmark(landmarks, "RIGHT_KNEE"),
+        find_landmark(landmarks, "RIGHT_ANKLE"),
+        width,
+        height,
+    )
+    print("KNEE_ANGLE")
+    left_knee_text = format_angle(left_knee)
+    right_knee_text = format_angle(right_knee)
+    print(f"left: {left_knee_text}°" if left_knee_text is not None else "left: n/a")
+    print(f"right: {right_knee_text}°" if right_knee_text is not None else "right: n/a")
     print()
 
 # Função para imprimir as estatísticas do vídeo

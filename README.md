@@ -2,7 +2,7 @@
 
 Primeira etapa da pipeline de visão computacional do SpikeAI: transformar um vídeo de ataque em um novo vídeo contendo **somente o skeleton** sobre fundo vazio.
 
-Não há detecção da bola, classificação do ataque nem feedback técnico. O ângulo do cotovelo no vídeo/JSON é só uma demonstração de geometria (landmarks → vetores → graus), não o pipeline biomecânico do Spike.AI.
+Não há detecção da bola, classificação do ataque nem feedback técnico. Os ângulos de cotovelo e joelho no vídeo/JSON são só demonstração de geometria (landmarks → vetores → graus), não o pipeline biomecânico do Spike.AI.
 
 ## Pipeline
 
@@ -71,7 +71,7 @@ O vídeo obrigatório usa fundo preto: atleta, quadra, bola e rede **não** apar
 
 `original_pose.mp4` mantém o vídeo original com o skeleton por cima, só para conferir a detecção.
 
-Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda os pontos do frame com `x`/`y`/`z`/`visibility` arredondados. O ângulo também é escrito perto do cotovelo no vídeo.
+Landmarks com `visibility` abaixo de 0.5 não são desenhados. O JSON guarda os pontos do frame com `x`/`y`/`z`/`visibility` arredondados, `elbow_angle` e `knee_angle`. Os valores também aparecem no vídeo (`L`/`R` no cotovelo, `LK`/`RK` no joelho).
 
 Ao final, o terminal mostra frames com/sem pose, taxa de detecção e tempo total.
 
@@ -85,7 +85,7 @@ src/main.py     orquestra o loop
 src/video.py    leitura e escrita de vídeo
 src/pose.py     MediaPipe + landmarks estruturados
 src/renderer.py frame vazio + pontos + conexões + ângulo
-src/geometry.py visibility e ângulo do cotovelo
+src/geometry.py visibility e ângulos (cotovelo / joelho)
 src/export.py   exportação JSON
 requirements.txt
 ```
@@ -93,7 +93,7 @@ requirements.txt
 ## Limitações
 
 - Pose **2D** com profundidade relativa (`z`); não é reconstrução biomecânica 3D.
-- O ângulo do cotovelo é 2D no plano da imagem (em pixels), não o ângulo articular 3D.
+- Os ângulos de cotovelo e joelho são 2D no plano da imagem (em pixels), não o ângulo articular 3D.
 - Oclusão, baixa iluminação e movimentos muito rápidos reduzem a qualidade dos landmarks.
 - Atleta parcialmente fora do quadro gera skeleton incompleto; fora por completo gera frame vazio no vídeo obrigatório.
 - Com várias pessoas, usa **apenas a primeira pose** detectada.

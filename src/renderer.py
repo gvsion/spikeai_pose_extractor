@@ -6,23 +6,15 @@ from pose import LandmarkPoint, find_landmark
 
 DEFAULT_VISIBILITY_THRESHOLD = 0.5
 
-# Conexões entre landmarks
+# Conexões entre landmarks do esqueleto
 SKELETON_CONNECTIONS = (
     ("HEAD", "LEFT_SHOULDER"),
     ("HEAD", "RIGHT_SHOULDER"),
     ("LEFT_SHOULDER", "RIGHT_SHOULDER"),
     ("LEFT_SHOULDER", "LEFT_ELBOW"),
     ("LEFT_ELBOW", "LEFT_WRIST"),
-    ("LEFT_WRIST", "LEFT_PINKY"),
-    ("LEFT_WRIST", "LEFT_INDEX"),
-    ("LEFT_WRIST", "LEFT_THUMB"),
-    ("LEFT_PINKY", "LEFT_INDEX"),
     ("RIGHT_SHOULDER", "RIGHT_ELBOW"),
     ("RIGHT_ELBOW", "RIGHT_WRIST"),
-    ("RIGHT_WRIST", "RIGHT_PINKY"),
-    ("RIGHT_WRIST", "RIGHT_INDEX"),
-    ("RIGHT_WRIST", "RIGHT_THUMB"),
-    ("RIGHT_PINKY", "RIGHT_INDEX"),
     ("LEFT_SHOULDER", "LEFT_HIP"),
     ("RIGHT_SHOULDER", "RIGHT_HIP"),
     ("LEFT_HIP", "RIGHT_HIP"),

@@ -111,7 +111,6 @@ def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
 def _print_stats(info, processed: int, with_pose: int, elapsed_s: float) -> None:
     without_pose = processed - with_pose
     rate = (with_pose / processed * 100) if processed else 0.0
-    print(f"Vídeo: {info.path.name}")
     print(f"Resolução: {info.width}x{info.height}")
     print(f"FPS: {info.fps:.2f}")
     print(f"Frames processados: {processed}")
@@ -160,16 +159,12 @@ def main() -> None:
         only_writer.close()
         overlay_writer.close()
         detector.close()
-        
+
     # Escreve os landmarks e os ângulos em arquivos CSV
     write_landmarks_csv(DEFAULT_LANDMARKS_CSV, landmark_records)
     write_angles_csv(DEFAULT_ANGLES_CSV, angle_records)
     elapsed = time.perf_counter() - started
     _print_stats(info, processed, with_pose, elapsed)
-    print(f"Somente pose: {DEFAULT_OUTPUT}")
-    print(f"Original + pose: {DEFAULT_OVERLAY}")
-    print(f"Landmarks CSV: {DEFAULT_LANDMARKS_CSV}")
-    print(f"Angles CSV: {DEFAULT_ANGLES_CSV}")
 
 
 if __name__ == "__main__":

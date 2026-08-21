@@ -7,7 +7,7 @@ from pose import LandmarkPoint, find_landmark
 
 DEFAULT_VISIBILITY_THRESHOLD = 0.5
 
-
+# Renderização da pose
 class PoseRenderer:
     def __init__(
         self,
@@ -41,6 +41,7 @@ class PoseRenderer:
         self._draw_joint_angles(canvas, landmarks, width, height)
         return canvas
 
+    # Desenha os ângulos dos cotovelos e joelhos
     def _draw_joint_angles(
         self,
         canvas: np.ndarray,
@@ -84,6 +85,7 @@ class PoseRenderer:
                 cv2.LINE_AA,
             )
 
+    # Desenha as conexões entre os landmarks
     def _draw_connections(
         self,
         canvas: np.ndarray,
@@ -103,6 +105,7 @@ class PoseRenderer:
                 self.line_thickness,
             )
 
+    # Desenha os pontos dos landmarks
     def _draw_points(
         self,
         canvas: np.ndarray,
@@ -114,7 +117,7 @@ class PoseRenderer:
                 continue
             cv2.circle(canvas, point, self.point_radius, (0, 0, 255), thickness=-1)
 
-
+# Converte o landmark para pixels
 def _to_pixel(landmark: LandmarkPoint, width: int, height: int) -> tuple[int, int]:
     x = int(round(landmark.x * width))
     y = int(round(landmark.y * height))

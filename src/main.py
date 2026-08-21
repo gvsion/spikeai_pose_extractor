@@ -46,7 +46,7 @@ def _timestamp_ms(frame_index: int, fps: float, last_timestamp: int) -> int:
         timestamp = last_timestamp + 1
     return timestamp
 
-# Função para imprimir os landmarks e o ângulo do cotovelo
+# Função para imprimir os landmarks e o ângulo do cotovelo e joelho
 def _print_sample(frame_index: int, landmarks, width: int, height: int) -> None:
     print(f"Frame {frame_index}")
     print()

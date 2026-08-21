@@ -82,7 +82,7 @@ def frame_record(
         },
     }
 
-
+# Escreve os landmarks em um arquivo JSON
 def write_landmarks_json(path: Path, records: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(records, indent=2), encoding="utf-8")

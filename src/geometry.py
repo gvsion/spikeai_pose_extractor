@@ -9,6 +9,7 @@ def is_visible(landmark: LandmarkPoint, threshold: float) -> bool:
         return True
     return landmark.visibility >= threshold
 
+# Cálculo do ângulo entre dois landmarks
 def joint_angle(
     proximal: LandmarkPoint | None,
     joint: LandmarkPoint | None,
@@ -30,7 +31,7 @@ def joint_angle(
     )
     return _angle_between(v_proximal, v_distal)
 
-
+# Cálculo do ângulo do cotovelo
 def elbow_angle(
     shoulder: LandmarkPoint | None,
     elbow: LandmarkPoint | None,
@@ -40,7 +41,7 @@ def elbow_angle(
 ) -> float | None:
     return joint_angle(shoulder, elbow, wrist, width, height)
 
-
+# Cálculo do ângulo do joelho
 def knee_angle(
     hip: LandmarkPoint | None,
     knee: LandmarkPoint | None,
@@ -50,7 +51,7 @@ def knee_angle(
 ) -> float | None:
     return joint_angle(hip, knee, ankle, width, height)
 
-
+# Arredonda o ângulo para melhor visualização
 def quantize_angle(value: float | None) -> int | float | None:
     if value is None:
         return None
@@ -66,7 +67,7 @@ def format_angle(value: float | None) -> str | None:
         return None
     return str(quantized)
 
-# Cálculo do ângulo entre dois pontos
+# Cálculo do ângulo entre dois vetores
 def _angle_between(vector_a: tuple[float, float], vector_b: tuple[float, float]) -> float | None:
     norm_a = math.hypot(vector_a[0], vector_a[1])
     norm_b = math.hypot(vector_b[0], vector_b[1])
